@@ -114,7 +114,7 @@
                 let pass = prompt("أدخل كلمة مرور الأدمن:");
                 if (pass === "2030") {
                     isAdmin = true;
-                    document.getElementById('adminBtn').innerText = "خروج الأدمن";
+                    document.getElementById('adminBtn').innerText = "خروج المهندس";
                     document.getElementById('adminBtn').className = "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition";
                     loadData();
                     alert("تم تسجيل دخول الأدمن بنجاح!");
@@ -123,7 +123,7 @@
                 }
             } else {
                 isAdmin = false;
-                document.getElementById('adminBtn').innerText = "دخول الأدمن";
+                document.getElementById('adminBtn').innerText = "دخول االمهندس";
                 document.getElementById('adminBtn').className = "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition";
                 loadData();
             }
