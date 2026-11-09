@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة الإجازات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <div class="max-w-7xl mx-auto p-4 sm:p-6">
+        <!-- رأس الصفحة -->
+        <div class="flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-md mb-6 gap-4 border border-gray-300">
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800">📋 نظام متابعة وإدارة إجازات الموظفين</h1>
+            <div id="adminArea">
+                <button onclick="toggleAdmin()" id="adminBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition">دخول الأدمن</button>
+            </div>
+        </div>
+
+        <!-- نموذج الإدخال للمشرفين -->
+        <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md mb-6 border border-gray-300">
+            <h2 id="formTitle" class="text-lg font-semibold text-gray-700 mb-4">إضافة طلب إجازة جديد</h2>
+            <form id="vacationForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">اسم الموظف</label>
+                    <input type="text" id="employeeName" required class="w-full border border-gray-400 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="أدخل اسم الموظف">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">نوع الإجازة</label>
+                    <select id="vacationType" class="w-full border border-gray-400 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="سنوي">سنوي</option>
+                        <option value="عارضة">عارضة</option>
+                        <option value="بدل">بدل</option>
+                        <option value="بالخصم">بالخصم</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">التاريخ</label>
+                    <input type="date" id="vacationDate" required class="w-full border border-gray-400 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">المشرف</label>
+                    <select id="supervisorName" class="w-full border border-gray-400 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="حميدة">حميدة</option>
+                        <option value="حسام">حسام</option>
+                        <option value="أبو حمزة">أبو حمزة</option>
+                        <option value="أبو حمرة">أبو حمرة</option>
+                        <option value="معتصم">معتصم</option>
+                        <option value="ميشو">ميشو</option>
+                        <option value="محمد صابر">محمد صابر</option>
+                        <option value="محمد إسماعيل">محمد إسماعيل</option>
+                        <option value="إسلام رمضان">إسلام رمضان</option>
+                        <option value="رشدي">رشدي</option>
+                        <option value="محمد سمير">محمد سمير</option>
+                        <option value="أحمد تركي">أحمد تركي</option>
+                    </select>
+                </div>
+                <div class="sm:col-span-2 lg:col-span-4 flex justify-end gap-2">
+                    <button type="button" id="cancelBtn" onclick="resetForm()" class="hidden bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition">إلغاء التعديل</button>
+                    <button type="submit" id="submitBtn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition w-full sm:w-auto">إضافة الطلب</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- جدول الطلبات -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-400">
+            <div class="overflow-x-auto">
+                <table class="w-full text-right border-collapse border border-gray-400">
+                    <thead>
+                        <tr class="bg-gray-200 text-gray-800 text-sm font-bold">
+                            <th class="p-3 border border-gray-400 text-center">م</th>
+                            <th class="p-3 border border-gray-400">اسم الموظف</th>
+                            <th class="p-3 border border-gray-400">نوع الإجازة</th>
+                            <th class="p-3 border border-gray-400">التاريخ</th>
+                            <th class="p-3 border border-gray-400">المشرف</th>
+                            <th class="p-3 border border-gray-400 text-center">التنفيذ</th>
+                            <th class="p-3 border border-gray-400 text-center">إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vacationTableBody" class="text-gray-700 text-sm">
+                        <!-- البيانات ستضاف هنا ديناميكياً -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (Modular) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // ==========================================
+        // 🛑 بيانات الفايربيز الخاصة بك 🛑
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDVdEQBp3X0kIZgpMQIKOOHuCBbGe23A",
+            authDomain: "my-vacation-app-fedab.firebaseapp.com",
+            projectId: "my-vacation-app-fedab",
+            storageBucket: "my-vacation-app-fedab.firebasestorage.app",
+            messagingSenderId: "300432655208",
+            appId: "1:300432655208:web:c8e6128d15691c8da40cdd",
+            measurementId: "G-B8NZSBCQ7S"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let isAdmin = false;
+        let editingId = null; // لتتبع الطلب المراد تعديله
+
+        window.toggleAdmin = function() {
+            if (!isAdmin) {
+                let pass = prompt("أدخل كلمة مرور الأدمن:");
+                if (pass === "2030") {
+                    isAdmin = true;
+                    document.getElementById('adminBtn').innerText = "خروج الأدمن";
+                    document.getElementById('adminBtn').className = "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition";
+                    loadData();
+                    alert("تم تسجيل دخول الأدمن بنجاح!");
+                } else if (pass !== null) {
+                    alert("كلمة المرور غير صحيحة!");
+                }
+            } else {
+                isAdmin = false;
+                document.getElementById('adminBtn').innerText = "دخول الأدمن";
+                document.getElementById('adminBtn').className = "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition";
+                loadData();
+            }
+        }
+
+        // جلب البيانات وعرضها
+        async function loadData() {
+            const tableBody = document.getElementById('vacationTableBody');
+            tableBody.innerHTML = `<tr><td colspan="7" class="p-4 text-center border border-gray-400">جاري تحميل البيانات...</td></tr>`;
+            try {
+                const querySnapshot = await getDocs(collection(db, "vacations"));
+                tableBody.innerHTML = "";
+                let index = 1;
+                querySnapshot.forEach((docSnap) => {
+                    let data = docSnap.data();
+                    let rowId = docSnap.id;
+                    
+                    let rowColor = data.executed ? "bg-green-50" : "bg-red-50";
+                    let checkDisabled = isAdmin ? "" : "disabled";
+                    // إذا لم يتم التنفيذ، يصبح اسم الموظف أحمر وواضح
+                    let nameStyle = data.executed ? "text-gray-800" : "text-red-600 font-bold";
+                    
+                    let row = `
+                        <tr class="${rowColor} border-b border-gray-400">
+                            <td class="p-3 border border-gray-400 font-semibold text-center">${index++}</td>
+                            <td class="p-3 border border-gray-400 ${nameStyle}">${data.employeeName}</td>
+                            <td class="p-3 border border-gray-400">${data.vacationType}</td>
+                            <td class="p-3 border border-gray-400">${data.date}</td>
+                            <td class="p-3 border border-gray-400">${data.supervisor}</td>
+                            <td class="p-3 border border-gray-400 text-center">
+                                <input type="checkbox" ${data.executed ? "checked" : ""} ${checkDisabled} 
+                                    onchange="updateExecution('${rowId}', this.checked)" class="w-5 h-5 cursor-pointer accent-green-600">
+                            </td>
+                            <td class="p-3 border border-gray-400 text-center">
+                                <div class="flex justify-center gap-2">
+                                    <button onclick="editRequest('${rowId}', '${data.employeeName}', '${data.vacationType}', '${data.date}', '${data.supervisor}')" class="bg-amber-500 hover:bg-amber-600 text-white px-2.5 py-1 rounded text-xs transition">تعديل</button>
+                                    <button onclick="deleteRequest('${rowId}')" class="bg-red-600 hover:bg-red-700 text-white px-2.5 py-1 rounded text-xs transition">حذف</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+                if(querySnapshot.empty) {
+                    tableBody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500 border border-gray-400">لا توجد طلبات إجازة مسجلة حتى الآن.</td></tr>`;
+                }
+            } catch (error) {
+                console.error("Error loading data: ", error);
+                tableBody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-red-500 border border-gray-400">حدث خطأ أثناء تحميل البيانات من قاعدة البيانات.</td></tr>`;
+            }
+        }
+
+        // إضافة أو تحديث طلب
+        document.getElementById('vacationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            let employeeName = document.getElementById('employeeName').value;
+            let vacationType = document.getElementById('vacationType').value;
+            let date = document.getElementById('vacationDate').value;
+            let supervisor = document.getElementById('supervisorName').value;
+
+            try {
+                if (editingId) {
+                    // تحديث الطلب الموجود
+                    const docRef = doc(db, "vacations", editingId);
+                    await updateDoc(docRef, {
+                        employeeName: employeeName,
+                        vacationType: vacationType,
+                        date: date,
+                        supervisor: supervisor
+                    });
+                    alert("تم تعديل طلب الإجازة بنجاح!");
+                    resetForm();
+                } else {
+                    // إضافة طلب جديد
+                    await addDoc(collection(db, "vacations"), {
+                        employeeName: employeeName,
+                        vacationType: vacationType,
+                        date: date,
+                        supervisor: supervisor,
+                        executed: false,
+                        timestamp: new Date()
+                    });
+                    alert("تم إضافة طلب الإجازة بنجاح!");
+                    document.getElementById('vacationForm').reset();
+                }
+                loadData();
+            } catch (error) {
+                alert("حدث خطأ: " + error.message);
+            }
+        });
+
+        // تجهيز النموذج للتعديل
+        window.editRequest = function(id, name, type, date, sup) {
+            editingId = id;
+            document.getElementById('employeeName').value = name;
+            document.getElementById('vacationType').value = type;
+            document.getElementById('vacationDate').value = date;
+            document.getElementById('supervisorName').value = sup;
+
+            document.getElementById('formTitle').innerText = "تعديل طلب الإجازة";
+            document.getElementById('submitBtn').innerText = "حفظ التعديلات";
+            document.getElementById('submitBtn').className = "bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-lg font-medium transition w-full sm:w-auto";
+            document.getElementById('cancelBtn').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // إلغاء وضع التعديل
+        window.resetForm = function() {
+            editingId = null;
+            document.getElementById('vacationForm').reset();
+            document.getElementById('formTitle').innerText = "إضافة طلب إجازة جديد";
+            document.getElementById('submitBtn').innerText = "إضافة الطلب";
+            document.getElementById('submitBtn').className = "bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition w-full sm:w-auto";
+            document.getElementById('cancelBtn').classList.add('hidden');
+        }
+
+        // حذف طلب
+        window.deleteRequest = async function(id) {
+            if (confirm("هل أنت متأكد من حذف هذا الطلب نهائياً؟")) {
+                try {
+                    await deleteDoc(doc(db, "vacations", id));
+                    alert("تم حذف الطلب بنجاح.");
+                    loadData();
+                } catch (error) {
+                    alert("حدث خطأ أثناء الحذف: " + error.message);
+                }
+            }
+        }
+
+        // تحديث حالة التنفيذ للأدمن فقط
+        window.updateExecution = async function(id, status) {
+            if (!isAdmin) return;
+            try {
+                const docRef = doc(db, "vacations", id);
+                await updateDoc(docRef, {
+                    executed: status
+                });
+                loadData();
+            } catch (error) {
+                alert("حدث خطأ في التحديث: " + error.message);
+            }
+        }
+
+        // تحميل البيانات أول ما الصفحة تفتح
+        loadData();
+    </script>
+</body>
+</html>
