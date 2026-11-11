@@ -5,22 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">  
 <title>نظام إدارة الإجازات - QC Department</title>  
   <!-- إعدادات التطبيق PWA -->  
-    <link rel="manifest" href="manifest.json">  
-    <meta name="theme-color" content="#4f46e5">  
-    <meta name="apple-mobile-web-app-capable" content="yes">  
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">  
-    <link rel="apple-touch-icon" href="logo.png">
-
-<!-- تسجيل الـ Service Worker -->  
+    <link rel="manifest" href="manifest-qc.json">
 <script>  
     if ('serviceWorker' in navigator) {  
         window.addEventListener('load', () => {  
-            navigator.serviceWorker.register('./sw.js');  
+            navigator.serviceWorker.register('./sw-qc.js');  
         });  
     }  
-</script>  
-
-<script src="https://cdn.tailwindcss.com"></script>  
+</script>
+<meta name="theme-color" content="#4f46e5">  
+<meta name="apple-mobile-web-app-capable" content="yes">  
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">  
+<link rel="apple-touch-icon" href="logo.png">
 <style>  
 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');  
 body{font-family:'Tajawal',sans-serif;transition:background .3s,color .3s}  
