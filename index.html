@@ -94,7 +94,7 @@
                 </div>
                 <!-- المنتصف: كلمة الإجازات -->
                 <div class="absolute inset-x-0 text-center pointer-events-none">
-                    <h1 class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-l from-red-800 to-slate-800">الاجازات</h1>
+                    <h1 class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-l from-red-800 to-slate-800">الإجازات</h1>
                 </div>
             </div>
 
@@ -235,6 +235,8 @@
                             <option value="alphaAsc">الاسم (أ - ي)</option>
                             <option value="alphaDesc">الاسم (ي - أ)</option>
                             <option value="type">نوع الإجازة</option>
+                            <option value="executedFirst">تم تنفيذها أولاً</option>
+                            <option value="frozenFirst">قيد الانتظار (Frozen) أولاً</option>
                         </select>
                     </div>
                     <div class="w-full sm:w-64 relative">
@@ -533,6 +535,10 @@
                 requests.sort((a, b) => b.employeeName.localeCompare(a.employeeName, 'ar'));
             } else if(sortMethod === 'type') {
                 requests.sort((a, b) => a.vacationType.localeCompare(b.vacationType, 'ar'));
+            } else if(sortMethod === 'executedFirst') {
+                requests.sort((a, b) => (b.executed ? 1 : 0) - (a.executed ? 1 : 0));
+            } else if(sortMethod === 'frozenFirst') {
+                requests.sort((a, b) => (a.executed ? 1 : 0) - (b.executed ? 1 : 0));
             }
 
             tableBody.innerHTML = "";
@@ -708,4 +714,4 @@
         startApp();
     </script>
 </body>
-    </html>
+</html>
