@@ -68,7 +68,7 @@ body.dark .title-grad{background-image:linear-gradient(to left,#a5b4fc,#f1f5f9)!
   </div>  
 </div>
 
-<!-- 🌟 نافذة اختيار المهندس (Login Step 1) 🌟 -->
+<!-- 🌟 نافذة اختيار المهندس -->
 <div id="engineerSelectModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[85] flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300 no-print">
   <div id="engineerSelectBox" class="bg-white rounded-3xl shadow-2xl w-11/12 max-w-lg transform scale-95 transition-all duration-300 overflow-hidden border border-slate-200">
     <div class="bg-indigo-600 p-5 text-center relative">
@@ -82,7 +82,7 @@ body.dark .title-grad{background-image:linear-gradient(to left,#a5b4fc,#f1f5f9)!
   </div>
 </div>
 
-<!-- نافذة الرسائل والباسورد (Login Step 2) -->  
+<!-- نافذة الرسائل والباسورد -->  
 <div id="customModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[90] flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300 no-print">  
   <div id="customModalBox" class="bg-white rounded-3xl shadow-2xl w-11/12 max-w-sm transform scale-95 transition-all duration-300 overflow-hidden border border-slate-200">  
     <div class="p-6 text-center">  
@@ -161,7 +161,7 @@ body.dark .title-grad{background-image:linear-gradient(to left,#a5b4fc,#f1f5f9)!
     </div>  
   </div>
 
-  <!-- لوحة تحكم المهندس (Dynamic) -->  
+  <!-- لوحة تحكم المهندس -->  
   <div id="adminSettingsPanel" class="hidden bg-slate-900 text-white p-6 rounded-2xl shadow-2xl mb-6 border border-slate-700 relative overflow-hidden no-print">  
     <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-600 rounded-full blur-[100px] opacity-20 pointer-events-none"></div>  
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 relative z-10 gap-4">  
@@ -642,7 +642,7 @@ function renderTable(){
   body.innerHTML = reqs.map((d,i)=>{  
     const ds=getDates(d), fz=d.executed?'':' fz';  
     
-    // شروط الإغلاق الصارم: إذا نفذها مهندس معين، لا يستطيع تعديلها/حذفها أو إلغاء تنفيذها إلا هو (أو يملك الباسورد)
+    // شروط الإغلاق الصارم: إذا نفذها مهندس معين، لا يستطيع تعديلها/حذفها إلا هو (أو يملك الباسورد)
     const isLocked = d.executed && d.executedBy && (!isAdmin || currentEngineer !== d.executedBy);
 
     const badge = d.executed  
@@ -651,13 +651,19 @@ function renderTable(){
     
     const datesHtml = ds.map(x=>`<div class="p-2 border-b border-slate-200 font-bold text-slate-600"><span class="${x===iso?'today-chip':''}">${esc(x)}</span> <span class="text-xs text-slate-400">${dayName(x)}</span></div>`).join('');  
     
-    const toggle = `<label class="relative inline-flex items-center ${isLocked ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}"><input type="checkbox" class="sr-only peer" ${d.executed?'checked':''} ${isLocked?'disabled':''} onchange="updateExecution('${d.id}',this.checked)">  
+    // جعل زر التنفيذ (التوجل) مغلقاً تماماً (لا يتحرك) إذا لم تكن Admin أو إذا كانت الإجازة مقفولة بواسطة مهندس آخر
+    const canToggle = isAdmin && !isLocked;
+    const toggle = `<label class="relative inline-flex items-center ${canToggle ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}">
+      <input type="checkbox" class="sr-only peer" ${d.executed?'checked':''} ${canToggle?'':'disabled'} onchange="updateExecution('${d.id}',this.checked)">  
       <div class="w-11 h-6 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 shadow-inner"></div></label>`;  
     
+    // أزرار التعديل والحذف (تظهر باهتة إذا كانت مقفولة، لكن الواتساب يعمل للجميع)
     const actionBtns = isLocked 
-      ? `<span class="text-xs text-rose-500 font-bold bg-rose-50 px-2 py-1 rounded border border-rose-200">🔒 مقفول (${esc(d.executedBy)})</span>`
+      ? `<span class="text-xs text-rose-500 font-bold bg-rose-50 px-2 py-1 rounded border border-rose-200 text-center">🔒 مقفول (${esc(d.executedBy.split(' ')[0])})</span>
+         <button onclick="shareWhatsApp('${d.id}')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 border border-emerald-300 px-3 py-1.5 rounded-lg text-xs font-bold mt-1 w-full">واتساب 💬</button>`
       : `<button onclick="requestEdit('${d.id}')" class="bg-amber-100 hover:bg-amber-200 text-amber-700 border border-amber-300 px-3 py-1.5 rounded-lg text-xs font-bold mb-1 w-full">تعديل</button>  
-         <button onclick="requestDelete('${d.id}')" class="bg-red-100 hover:bg-red-200 text-red-700 border border-red-300 px-3 py-1.5 rounded-lg text-xs font-bold w-full">حذف</button>`;
+         <button onclick="requestDelete('${d.id}')" class="bg-red-100 hover:bg-red-200 text-red-700 border border-red-300 px-3 py-1.5 rounded-lg text-xs font-bold mb-1 w-full">حذف</button>
+         <button onclick="shareWhatsApp('${d.id}')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 border border-emerald-300 px-3 py-1.5 rounded-lg text-xs font-bold w-full">واتساب 💬</button>`;
 
     return `<tr class="${d.executed?'':'row-fz'} border-b border-slate-200">  
       <td class="p-4 border border-slate-200 font-extrabold text-center text-slate-500 sticky right-0 z-20 sticky-cell${fz}">${i+1}</td>  
@@ -673,7 +679,7 @@ function renderTable(){
 }
 
 async function updateExecution(id, status){  
-  if(!isAdmin || !currentEngineer) return showToast('برجاء تسجيل الدخول أولاً', 'warning');  
+  if(!isAdmin || !currentEngineer) return showToast('برجاء تسجيل الدخول أولاً كمهندس لتتمكن من التنفيذ', 'warning');  
   try{  
     const updateData = { executed: status, executedBy: status ? currentEngineer : null };
     await db.collection(COLLECTION_NAME).doc(id).update(updateData);  
@@ -681,6 +687,13 @@ async function updateExecution(id, status){
     const r=globalRequestsData.find(x=>x.id===id); if(r) { r.executed=status; r.executedBy=updateData.executedBy; }  
     renderTable();  
   }catch(e){ showToast('تعذر التحديث','error'); }  
+}
+
+/* دالة الواتساب المدمجة حديثاً */
+function shareWhatsApp(id){  
+  const r = globalRequestsData.find(x => x.id === id); if(!r) return;  
+  const txt = `📋 طلب إجازة - Production\n👤 ${r.employeeName}\n📌 النوع: ${r.vacationType}\n📅 ${getDates(r).join(' ، ')}\n👨‍💼 المشرف: ${r.supervisor}\n${r.executed ? '✅ منفذ' : '⏳ Frozen'}`;  
+  window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');  
 }
 
 /* إرسال وحفظ الطلبات وتعديلها */
