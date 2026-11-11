@@ -22,12 +22,28 @@
         .toggle-checkbox:checked { right: 0; border-color: #10b981; }
         .toggle-checkbox:checked + .toggle-label { background-color: #10b981; }
         .toggle-checkbox:checked + .toggle-label:after { transform: translateX(-100%); }
+
+        /* تأثيرات الدخول والخروج للبطاقة العائمة */
+        .profile-enter { transform: translateX(0); opacity: 1; }
+        .profile-exit { transform: translateX(120%); opacity: 0; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 relative">
 
+    <!-- 🌟 البروفايل العائم (Sticky Profile) لرئيس القسم 🌟 -->
+    <div id="stickyProfile" class="fixed top-4 right-4 z-[70] flex items-center gap-3 bg-white/80 backdrop-blur-lg border border-slate-200/50 shadow-2xl px-4 py-2.5 rounded-full transition-all duration-700 ease-in-out profile-exit no-print">
+        <div class="relative">
+            <img src="mahmoud abdelsalam.png" alt="Section Head" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-[3px] border-indigo-600 shadow-md bg-slate-200" onerror="this.src='https://ui-avatars.com/api/?name=Mahmoud+Abdelsalam&background=4f46e5&color=fff'">
+            <span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></span>
+        </div>
+        <div class="flex flex-col text-right pr-2">
+            <span class="text-xs text-slate-500 font-extrabold tracking-wide">أهلاً بك 👑</span>
+            <span class="text-sm sm:text-base font-extrabold text-indigo-900 leading-tight">م. Mahmoud Abdelsalam</span>
+        </div>
+    </div>
+
     <!-- 🌟 النافذة المنبثقة للرسائل والباسورد 🌟 -->
-    <div id="customModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[60] flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300 no-print">
+    <div id="customModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[80] flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300 no-print">
         <div id="customModalBox" class="bg-white rounded-3xl shadow-2xl w-11/12 max-w-sm transform scale-95 transition-all duration-300 overflow-hidden border border-slate-200">
             <div class="p-6 text-center">
                 <div id="customModalIcon" class="text-6xl mb-4 animate-bounce"></div>
@@ -80,10 +96,13 @@
     </div>
 
     <!-- محتوى الصفحة الرئيسي -->
-    <div class="max-w-7xl mx-auto p-4 sm:p-6">
+    <div class="max-w-7xl mx-auto p-4 sm:p-6 mt-10 sm:mt-0">
         
         <!-- رأس الصفحة -->
-        <div class="bg-white p-5 rounded-2xl shadow-sm mb-6 border-b-4 border-indigo-700 no-print relative">
+        <div class="bg-white p-5 rounded-2xl shadow-sm mb-6 border-b-4 border-indigo-700 no-print relative overflow-hidden">
+            <!-- ديكور خلفي -->
+            <div class="absolute -top-10 -right-10 w-40 h-40 bg-indigo-50 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+            
             <div class="flex items-center justify-between w-full relative min-h-[60px]">
                 <div class="shrink-0 z-10">
                     <img src="logo.png" alt="Marbella Macaronella" class="h-16 sm:h-20 w-auto object-contain">
@@ -91,18 +110,18 @@
                 <div class="absolute inset-x-0 text-center pointer-events-none">
                     <h1 class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-l from-indigo-800 to-slate-800 flex items-center justify-center gap-3">
                         إجازات قسم الجودة
-                        <span class="bg-indigo-100 text-indigo-800 text-sm px-3 py-1 rounded-full border border-indigo-200">QC Dep.</span>
+                        <span class="bg-indigo-100 text-indigo-800 text-sm px-3 py-1 rounded-full border border-indigo-200 shadow-sm">QC Dep.</span>
                     </h1>
                 </div>
             </div>
-            <div class="text-center mt-3">
-                <p class="text-sm sm:text-base text-slate-600 font-bold tracking-wide mb-4">البوابة الذكية للمشرفين لإرسال ومتابعة الإجازات</p>
+            <div class="text-center mt-3 relative z-10">
+                <p class="text-sm sm:text-base text-slate-600 font-bold tracking-wide mb-4">البوابة الذكية لإرسال ومتابعة الإجازات</p>
                 <div id="adminArea" class="flex justify-center gap-3">
                     <button onclick="window.print()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-sm">
                         🖨️ طباعة
                     </button>
                     <button onclick="toggleAdmin()" id="adminBtn" class="bg-slate-800 hover:bg-slate-900 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg transition-all flex items-center gap-2 border border-slate-700">
-                        <span id="adminIcon">🔒</span> <span id="adminText">Eng.Mahmoud Abdelsalam.Section Head </span>
+                        <span id="adminIcon">🔒</span> <span id="adminText">Login: Section Head</span>
                     </button>
                 </div>
             </div>
@@ -117,7 +136,7 @@
                 </div>
                 <div class="text-3xl sm:text-4xl opacity-20">📁</div>
             </div>
-            <div onclick="openFilteredModal('executed')" class="cursor-pointer hover:scale-105 hover:shadow-md transition-all duration-300 bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex items-center justify-between border-r-4 border-r-emerald-500 relative overflow-hidden">
+            <div onclick="openFilteredModal('executed')" class="cursor-pointer hover:-translate-y-1 hover:shadow-md transition-all duration-300 bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex items-center justify-between border-r-4 border-r-emerald-500 relative overflow-hidden">
                 <div class="absolute inset-0 bg-emerald-50 opacity-0 hover:opacity-100 transition-opacity"></div>
                 <div class="relative z-10">
                     <p class="text-xs sm:text-sm font-bold text-slate-500 mb-1">تم تنفيذها</p>
@@ -125,7 +144,7 @@
                 </div>
                 <div class="text-3xl sm:text-4xl opacity-20 relative z-10">✅</div>
             </div>
-            <div onclick="openFilteredModal('frozen')" class="cursor-pointer hover:scale-105 hover:shadow-md transition-all duration-300 bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex items-center justify-between border-r-4 border-r-amber-500 relative overflow-hidden">
+            <div onclick="openFilteredModal('frozen')" class="cursor-pointer hover:-translate-y-1 hover:shadow-md transition-all duration-300 bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex items-center justify-between border-r-4 border-r-amber-500 relative overflow-hidden">
                 <div class="absolute inset-0 bg-amber-50 opacity-0 hover:opacity-100 transition-opacity"></div>
                 <div class="relative z-10">
                     <p class="text-xs sm:text-sm font-bold text-slate-500 mb-1">قيد الانتظار (Frozen)</p>
@@ -133,7 +152,7 @@
                 </div>
                 <div class="text-3xl sm:text-4xl opacity-20 relative z-10">⏳</div>
             </div>
-            <div onclick="openFilteredModal('deduction')" class="cursor-pointer hover:scale-105 hover:shadow-md transition-all duration-300 bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex items-center justify-between border-r-4 border-r-rose-500 relative overflow-hidden">
+            <div onclick="openFilteredModal('deduction')" class="cursor-pointer hover:-translate-y-1 hover:shadow-md transition-all duration-300 bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex items-center justify-between border-r-4 border-r-rose-500 relative overflow-hidden">
                 <div class="absolute inset-0 bg-rose-50 opacity-0 hover:opacity-100 transition-opacity"></div>
                 <div class="relative z-10">
                     <p class="text-xs sm:text-sm font-bold text-slate-500 mb-1">إجازات بالخصم</p>
@@ -144,45 +163,51 @@
         </div>
 
         <!-- ⚙️ لوحة تحكم رئيس القسم (احترافية) ⚙️ -->
-        <div id="adminSettingsPanel" class="hidden bg-slate-800 text-white p-6 rounded-2xl shadow-xl mb-6 border border-slate-700 relative overflow-hidden no-print">
-            <div class="absolute -left-10 -top-10 text-9xl opacity-5">⚙️</div>
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 relative z-10 gap-3">
+        <div id="adminSettingsPanel" class="hidden bg-slate-900 text-white p-6 rounded-2xl shadow-2xl mb-6 border border-slate-700 relative overflow-hidden no-print transition-all">
+            <!-- تأثير الإضاءة الخلفية -->
+            <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-600 rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
+            
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 relative z-10 gap-4">
                 <div>
-                    <h2 class="text-xl font-bold flex items-center gap-2 text-indigo-300">
-                        <span>🛠️</span> لوحة تحكم Section Head
+                    <h2 class="text-2xl font-black flex items-center gap-2 text-transparent bg-clip-text bg-gradient-to-l from-indigo-300 to-blue-200">
+                        <span>🛡️</span> Control Panel - Section Head
                     </h2>
-                    <p class="text-sm text-slate-400 mt-1 font-bold">أهلاً بك مهندس: Mahmoud Abdelsalam</p>
+                    <p class="text-sm text-slate-400 mt-1 font-bold">صلاحيات الإدارة والتحكم الكامل في حسابات المشرفين</p>
                 </div>
-                <button onclick="exportToCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-5 rounded-xl shadow-lg transition-all flex items-center gap-2">
+                <button onclick="exportToCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg shadow-emerald-900/50 transition-all flex items-center gap-2 border border-emerald-500">
                     📥 استخراج شيت إكسيل
                 </button>
             </div>
             
-            <div class="bg-slate-700/50 p-5 rounded-xl border border-slate-600 relative z-10">
-                <h3 class="text-sm font-bold text-white mb-4 border-b border-slate-600 pb-2">🔐 إدارة كلمات مرور المشرفين</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-300 mb-1.5">اختر المشرف</label>
-                        <select id="adminSupSelect" class="w-full bg-slate-800 border border-slate-600 rounded-xl p-2.5 text-white outline-none focus:ring-2 focus:ring-indigo-500 font-bold"></select>
+            <!-- تغيير كلمات المرور (النظام الجديد) -->
+            <div class="bg-slate-800/80 backdrop-blur-sm p-6 rounded-xl border border-slate-700 relative z-10 shadow-inner">
+                <h3 class="text-base font-bold text-white mb-5 flex items-center gap-2 border-b border-slate-700 pb-3">
+                    <span>🔐</span> Change Passwords (تغيير كلمات المرور)
+                </h3>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-5 items-end">
+                    <div class="lg:col-span-1">
+                        <label class="block text-xs font-bold text-indigo-300 mb-2 uppercase tracking-wide">Select Account</label>
+                        <select id="adminSupSelect" class="w-full bg-slate-900 border-2 border-slate-700 rounded-xl p-3 text-white outline-none focus:border-indigo-500 transition-colors font-bold cursor-pointer">
+                            <option value="Section_Head" class="font-extrabold text-indigo-400">👑 Section Head (Mahmoud)</option>
+                            <!-- سيتم إضافة المشرفين هنا عبر الجافاسكريبت -->
+                        </select>
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-300 mb-1.5">الباسورد القديم</label>
-                        <input type="password" id="adminOldPass" class="w-full bg-slate-800 border border-slate-600 rounded-xl p-2.5 text-center text-white tracking-[0.3em] font-bold outline-none focus:ring-2 focus:ring-indigo-500" placeholder="••••">
+                    <div class="lg:col-span-1">
+                        <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wide">New Password</label>
+                        <input type="password" id="adminNewPass" class="w-full bg-slate-900 border-2 border-slate-700 rounded-xl p-3 text-center text-white tracking-[0.4em] font-bold outline-none focus:border-indigo-500 transition-colors placeholder:tracking-normal" placeholder="كلمة المرور الجديدة">
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-300 mb-1.5">الباسورد الجديد</label>
-                        <input type="password" id="adminNewPass" class="w-full bg-slate-800 border border-slate-600 rounded-xl p-2.5 text-center text-white tracking-[0.3em] font-bold outline-none focus:ring-2 focus:ring-indigo-500" placeholder="••••">
+                    <div class="lg:col-span-1">
+                        <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wide">Confirm Password</label>
+                        <input type="password" id="adminConfirmPass" class="w-full bg-slate-900 border-2 border-slate-700 rounded-xl p-3 text-center text-white tracking-[0.4em] font-bold outline-none focus:border-indigo-500 transition-colors placeholder:tracking-normal" placeholder="تأكيد كلمة المرور">
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-300 mb-1.5">تأكيد الباسورد الجديد</label>
-                        <input type="password" id="adminConfirmPass" class="w-full bg-slate-800 border border-slate-600 rounded-xl p-2.5 text-center text-white tracking-[0.3em] font-bold outline-none focus:ring-2 focus:ring-indigo-500" placeholder="••••">
-                    </div>
-                    <div class="lg:col-span-4 mt-2">
-                        <button onclick="changePassword()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
-                            <span>تحديث كلمة المرور بنجاح</span> 🔄
+                    <div class="lg:col-span-1 mt-3 lg:mt-0">
+                        <button onclick="changePassword()" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 border border-indigo-400/50">
+                            <span>Update Password</span> 🔄
                         </button>
                     </div>
                 </div>
+                <p class="text-xs text-amber-400/70 font-bold mt-4">⚠️ ملاحظة: بصفتك Section Head، يمكنك تغيير أي كلمة مرور مباشرة بدون إدخال الباسورد القديم.</p>
             </div>
         </div>
 
@@ -251,8 +276,8 @@
                             <option value="alphaAsc">الاسم (أ - ي)</option>
                             <option value="alphaDesc">الاسم (ي - أ)</option>
                             <option value="type">نوع الإجازة</option>
-                            <option value="executedFirst">تم تنفيذها أولاً</option>
-                            <option value="frozenFirst">قيد الانتظار (Frozen) أولاً</option>
+                            <option value="executedFirst">تم تنفيذها </option>
+                            <option value="frozenFirst">قيد الانتظار (Frozen) </option>
                         </select>
                     </div>
                     <div class="w-full sm:w-64 relative">
@@ -282,12 +307,12 @@
         </div>
     </div>
 
-    <!-- Firebase SDK (Compat Version - يشتغل من الكمبيوتر مباشرة بدون مشاكل أمنية) -->
+    <!-- Firebase SDK (Compat Version) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <script>
-        // إعدادات Firebase الخاصة بك
+        // إعدادات Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDVdEQBp3X0kIZgpMQIKOOHuCBbGe23A",
             authDomain: "my-vacation-app-fedab.firebaseapp.com",
@@ -298,11 +323,10 @@
             measurementId: "G-B8NZSBCQ7S"
         };
 
-        // تهيئة Firebase بطريقة الـ Compat التي تعمل محلياً
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // أسماء مشرفي قسم الجودة (QC) بالإنجليزي
+        // أسماء مشرفي قسم الجودة (QC)
         const supervisorsList = [
             "Mohamed Samir", 
             "Ahmed Fadl", 
@@ -310,7 +334,6 @@
             "Mahmoud Abbas"
         ];
 
-        // متغيرات لضمان العزل التام في نفس قاعدة البيانات
         const COLLECTION_NAME = "vacations_qc";
         const SETTINGS_DOC = "settings_qc";
 
@@ -388,19 +411,11 @@
 
         function openFilteredModal(filterType) {
             let filteredData = [];
-            let title = "";
-            let icon = "";
+            let title = ""; let icon = "";
 
-            if(filterType === 'executed') {
-                filteredData = globalRequestsData.filter(req => req.executed === true);
-                title = "الطلبات المنفذة"; icon = "✅";
-            } else if (filterType === 'frozen') {
-                filteredData = globalRequestsData.filter(req => req.executed === false);
-                title = "طلبات قيد الانتظار (Frozen)"; icon = "⏳";
-            } else if (filterType === 'deduction') {
-                filteredData = globalRequestsData.filter(req => req.vacationType === 'بالخصم');
-                title = "إجازات بالخصم"; icon = "💸";
-            }
+            if(filterType === 'executed') { filteredData = globalRequestsData.filter(req => req.executed === true); title = "الطلبات المنفذة"; icon = "✅"; } 
+            else if (filterType === 'frozen') { filteredData = globalRequestsData.filter(req => req.executed === false); title = "طلبات قيد الانتظار (Frozen)"; icon = "⏳"; } 
+            else if (filterType === 'deduction') { filteredData = globalRequestsData.filter(req => req.vacationType === 'بالخصم'); title = "إجازات بالخصم"; icon = "💸"; }
 
             document.getElementById('filteredModalTitle').innerText = title;
             document.getElementById('filteredModalIcon').innerText = icon;
@@ -444,10 +459,16 @@
         function populateSupervisors() {
             const formSelect = document.getElementById('supervisorName');
             const adminSelect = document.getElementById('adminSupSelect');
-            let options = '';
-            supervisorsList.forEach(sup => { options += `<option value="${sup}">${sup}</option>`; });
-            formSelect.innerHTML = options;
-            adminSelect.innerHTML = options;
+            
+            // إضافة المشرفين للنموذج
+            let formOptions = '';
+            supervisorsList.forEach(sup => { formOptions += `<option value="${sup}">${sup}</option>`; });
+            formSelect.innerHTML = formOptions;
+
+            // إضافة المشرفين للوحة الأدمن (مع الإبقاء على Section Head كأول خيار)
+            let adminOptions = `<option value="Section_Head" class="font-extrabold text-indigo-400">👑 Section Head (Mahmoud)</option>`;
+            supervisorsList.forEach(sup => { adminOptions += `<option value="${sup}">👤 ${sup}</option>`; });
+            adminSelect.innerHTML = adminOptions;
         }
 
         async function initPasswords() {
@@ -455,7 +476,14 @@
                 const docSnap = await db.collection(SETTINGS_DOC).doc("passwords").get();
                 if (docSnap.exists) { 
                     supervisorPasswords = docSnap.data(); 
+                    // إذا لم يكن باسورد رئيس القسم موجوداً في الداتابيز القديمة، نضيفه
+                    if(!supervisorPasswords["Section_Head"]) {
+                        supervisorPasswords["Section_Head"] = "2030"; // الباسورد الافتراضي
+                        await db.collection(SETTINGS_DOC).doc("passwords").set(supervisorPasswords);
+                    }
                 } else {
+                    // أول مرة يتم إنشاء المستند
+                    supervisorPasswords = { "Section_Head": "2030" };
                     supervisorsList.forEach(sup => { supervisorPasswords[sup] = "1234"; });
                     await db.collection(SETTINGS_DOC).doc("passwords").set(supervisorPasswords);
                 }
@@ -478,15 +506,27 @@
             }
         }
 
+        // 🟢 تفعيل لوحة الإدارة وإظهار البروفايل العائم 🟢
         async function toggleAdmin() {
+            const profile = document.getElementById('stickyProfile');
+            
             if (!isAdmin) {
-                let pass = await showCustomModal({ title: 'دخول رئيس القسم', text: 'الرقم السري الخاص بـ Mahmoud Abdelsalam', isPrompt: true, showCancel: true });
-                if (pass === "2030") { // يمكنك تغيير هذا الرقم السري الخاص بالمهندس كما تشاء
+                let pass = await showCustomModal({ title: 'دخول رئيس القسم', text: 'برجاء إدخال الرقم السري (Section Head)', isPrompt: true, showCancel: true });
+                if (pass === supervisorPasswords["Section_Head"]) { 
                     isAdmin = true;
                     document.getElementById('adminIcon').innerText = "🔓";
-                    document.getElementById('adminText').innerText = "خروج (Logout)";
+                    document.getElementById('adminText').innerText = "Logout (الخروج)";
                     document.getElementById('adminBtn').className = "bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg transition-all flex items-center gap-2 border border-red-700";
+                    
                     document.getElementById('adminSettingsPanel').classList.remove('hidden');
+                    
+                    // إظهار البروفايل العائم بانيميشن
+                    profile.classList.remove('hidden');
+                    setTimeout(() => {
+                        profile.classList.remove('profile-exit');
+                        profile.classList.add('profile-enter');
+                    }, 50);
+
                     renderTable();
                     showToast('تم تفعيل صلاحيات رئيس القسم بنجاح', 'success');
                 } else if (pass !== false && pass !== null && pass !== "") {
@@ -495,38 +535,43 @@
             } else {
                 isAdmin = false;
                 document.getElementById('adminIcon').innerText = "🔒";
-                document.getElementById('adminText').innerText = "Section Head";
+                document.getElementById('adminText').innerText = "Login: Section Head";
                 document.getElementById('adminBtn').className = "bg-slate-800 hover:bg-slate-900 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg transition-all flex items-center gap-2 border border-slate-700";
+                
                 document.getElementById('adminSettingsPanel').classList.add('hidden');
+                
+                // إخفاء البروفايل العائم
+                profile.classList.remove('profile-enter');
+                profile.classList.add('profile-exit');
+                setTimeout(() => { profile.classList.add('hidden'); }, 700);
+
                 renderTable();
             }
         }
 
+        // 🟢 نظام تغيير كلمة المرور الجديد 🟢
         async function changePassword() {
             let sup = document.getElementById('adminSupSelect').value;
-            let oldPass = document.getElementById('adminOldPass').value;
             let newPass = document.getElementById('adminNewPass').value;
             let confirmPass = document.getElementById('adminConfirmPass').value;
 
-            if (!oldPass || !newPass || !confirmPass) {
-                return showToast('عفواً، يرجى ملء جميع الحقول المطلوبة', 'warning');
-            }
-            if (supervisorPasswords[sup] !== oldPass) {
-                return showToast('عفواً، الباسورد القديم غير صحيح!', 'error');
+            if (!newPass || !confirmPass) {
+                return showToast('عفواً، يرجى إدخال الباسورد الجديد وتأكيده', 'warning');
             }
             if (newPass !== confirmPass) {
                 return showToast('خطأ: الباسورد الجديد وتأكيده غير متطابقين!', 'error');
             }
             
             try {
+                // حفظ مباشر في الفايربيس (لأن الأدمن مسجل دخول بالفعل)
                 supervisorPasswords[sup] = newPass;
                 await db.collection(SETTINGS_DOC).doc("passwords").set(supervisorPasswords);
                 
-                document.getElementById('adminOldPass').value = '';
                 document.getElementById('adminNewPass').value = '';
                 document.getElementById('adminConfirmPass').value = '';
                 
-                await showCustomModal({ title: 'نجاح', text: `تم تحديث باسورد المشرف (${sup}) بنجاح وتم تشفيره.`, type: 'success' });
+                let accountName = sup === "Section_Head" ? "رئيس القسم" : `المشرف (${sup})`;
+                await showCustomModal({ title: 'نجاح', text: `تم تحديث باسورد حساب ${accountName} بنجاح.`, type: 'success' });
             } catch (error) {
                 showToast('حدث خطأ أثناء الاتصال بقاعدة البيانات', 'error');
             }
@@ -552,7 +597,6 @@
                 renderTable();
             } catch (error) {
                 tableBody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-red-500 font-bold">حدث خطأ أثناء تحميل البيانات!</td></tr>`;
-                console.error("Fetch Data Error:", error);
             }
         }
 
@@ -780,4 +824,4 @@
         startApp();
     </script>
 </body>
-</html>
+    </html>
