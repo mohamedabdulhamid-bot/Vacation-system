@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام إدارة الإجازات - QC Department</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+body{font-family:'Tajawal',sans-serif;transition:background .3s,color .3s}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-track{background:#f8fafc}::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:4px}
+@media print{.no-print{display:none!important}body{background:#fff!important;color:#000!important}.print-table th,.print-table td{border:1px solid #000;padding:4px}}
+.profile-enter{transform:translateX(0);opacity:1}.profile-exit{transform:translateX(120%);opacity:0}
+#vacationTableBody tr{animation:rowIn .35s ease both}
+@keyframes rowIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.sticky-cell{background:#fff}.sticky-cell.fz{background:#fffbeb}.row-fz{background:rgba(245,158,11,.07)}
+.today-chip{background:#4f46e5;color:#fff;border-radius:6px;padding:0 6px}
+/* 🌙 الوضع الليلي */
+body.dark{background:#0b1220;color:#e2e8f0}
+body.dark .bg-white{background:#162033!important}
+body.dark .bg-slate-50,body.dark .bg-slate-100,body.dark [class*="bg-slate-50/"]{background:#1b2840!important}
+body.dark .bg-slate-200{background:#243350!important}
+body.dark .text-slate-800,body.dark .text-slate-700,body.dark .text-slate-600{color:#e2e8f0!important}
+body.dark .text-slate-500{color:#94a3b8!important}
+body.dark .border-slate-100,body.dark .border-slate-200,body.dark .border-slate-300{border-color:#2d3f5e!important}
+body.dark input,body.dark select{background:#0f172a!important;color:#e2e8f0!important;border-color:#2d3f5e!important}
+body.dark .sticky-cell{background:#162033}body.dark .sticky-cell.fz{background:#2a2418}
+body.dark .bg-indigo-100{background:#312e81!important}body.dark .text-indigo-800,body.dark .text-indigo-900{color:#c7d2fe!important}
+body.dark ::-webkit-scrollbar-track{background:#0b1220}
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800 relative">
+
+<!-- البروفايل العائم -->
+<div id="stickyProfile" class="hidden fixed top-4 right-4 z-[70] flex items-center gap-3 bg-white/80 backdrop-blur-lg border border-slate-200/50 shadow-2xl px-4 py-2.5 rounded-full transition-all duration-700 profile-exit no-print">
+  <div class="relative">
+    <img src="mahmoud abdelsalam.png" alt="Section Head" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-[3px] border-indigo-600 shadow-md bg-slate-200" onerror="this.src='https://ui-avatars.com/api/?name=Mahmoud+Abdelsalam&background=4f46e5&color=fff'">
+    <span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></span>
+  </div>
+  <div class="flex flex-col text-right pr-2">
+    <span class="text-xs text-slate-500 font-extrabold">أهلاً بك 👑</span>
+    <span class="text-sm sm:text-base font-extrabold text-indigo-900 leading-tight">م. Mahmoud Abdelsalam</span>
+  </div>
+</div>
+
+<!-- نافذة الرسائل والباسورد -->
+<div id="customModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[80] flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300 no-print">
+  <div id="customModalBox" class="bg-white rounded-3xl shadow-2xl w-11/12 max-w-sm transform scale-95 transition-all duration-300 overflow-hidden border border-slate-200">
+    <div class="p-6 text-center">
+      <div id="customModalIcon" class="text-6xl mb-4"></div>
+      <h3 id="customModalTitle" class="text-xl font-extrabold text-slate-800 mb-2"></h3>
+      <p id="customModalText" class="text-sm text-slate-500 font-medium"></p>
+      <div id="customModalInputArea" class="mt-5 hidden">
+        <input type="password" id="customModalInput" class="w-full border-2 border-slate-200 rounded-xl p-3 text-center text-2xl tracking-[0.5em] font-bold outline-none focus:border-blue-500" placeholder="••••" onkeyup="if(event.key==='Enter')document.getElementById('customModalConfirmBtn').click()">
+      </div>
+    </div>
+    <div class="bg-slate-50 p-4 flex gap-3 justify-center border-t border-slate-100">
+      <button id="customModalCancelBtn" class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl hidden w-1/3">إلغاء</button>
+      <button id="customModalConfirmBtn" class="px-5 py-2.5 bg-blue-600 text-white font-bold rounded-xl flex-1">تأكيد</button>
+    </div>
+  </div>
+</div>
+
+<!-- نافذة الجداول المفلترة -->
+<div id="filteredTableModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300 no-print p-4">
+  <div id="filteredTableBox" class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[85vh] flex flex-col transform scale-95 transition-all duration-300 overflow-hidden border border-slate-200">
+    <div class="bg-slate-800 text-white p-4 flex justify-between items-center shrink-0">
+      <div class="flex items-center gap-3">
+        <span id="filteredModalIcon" class="text-2xl">📁</span>
+        <h3 id="filteredModalTitle" class="text-lg font-bold"></h3>
+        <span id="filteredModalCount" class="bg-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">0</span>
+      </div>
+      <button onclick="closeFilteredModal()" class="text-white hover:text-red-400 font-bold text-2xl leading-none">&times;</button>
+    </div>
+    <div class="flex-1 overflow-auto bg-slate-50 p-4">
+      <table class="w-full text-right border-collapse bg-white border border-slate-200">
+        <thead class="bg-slate-200 text-slate-700 text-sm sticky top-0 z-10"><tr>
+          <th class="p-3 border border-slate-300 text-center w-12">م</th><th class="p-3 border border-slate-300">اسم الموظف</th>
+          <th class="p-3 border border-slate-300 text-center">النوع</th><th class="p-3 border border-slate-300 text-center">الأيام</th>
+          <th class="p-3 border border-slate-300 text-center">التاريخ</th><th class="p-3 border border-slate-300 text-center">المشرف</th>
+        </tr></thead>
+        <tbody id="filteredTableBody" class="text-slate-700 text-sm font-medium"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toastNotification" class="fixed bottom-5 right-5 translate-y-20 opacity-0 transition-all duration-300 z-[90] no-print flex items-center gap-3 bg-slate-800 text-white px-5 py-3 rounded-xl shadow-2xl font-bold">
+  <span id="toastIcon">✅</span><span id="toastMessage"></span>
+</div>
+
+<div class="max-w-7xl mx-auto p-4 sm:p-6 mt-10 sm:mt-0">
+
+  <!-- ✅ الهيدر: لوجو يمين | عنوان وسط | QC شمال -->
+  <div class="bg-white p-5 rounded-2xl shadow-sm mb-6 border-b-4 border-indigo-700 no-print relative overflow-hidden">
+    <div class="absolute -top-10 -right-10 w-40 h-40 bg-indigo-100 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+    <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-100 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+    <div class="relative z-10 grid grid-cols-[auto_1fr_auto] items-center gap-3 sm:gap-6">
+      <img src="logo.png" alt="Marbella Macaronella" class="h-14 sm:h-20 w-auto object-contain justify-self-start">
+      <h1 class="text-center text-2xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-l from-indigo-700 to-slate-500">الاجازات</h1>
+      <span class="justify-self-end bg-indigo-100 text-indigo-800 text-xs sm:text-sm font-bold px-3 py-1 rounded-full border border-indigo-200 shadow-sm whitespace-nowrap">QC Dep.</span>
+    </div>
+    <div class="text-center mt-3 relative z-10">
+      <p class="text-sm sm:text-base text-slate-600 font-bold">البوابة الذكية لإرسال ومتابعة الإجازات</p>
+      <p id="liveClock" class="text-xs sm:text-sm text-indigo-600 font-bold mt-1 mb-4"></p>
+      <div class="flex flex-wrap justify-center gap-3">
+        <button onclick="toggleTheme()" id="themeBtn" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm">🌙 ليلي</button>
+        <button onclick="window.print()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm">🖨️ طباعة</button>
+        <button onclick="toggleAdmin()" id="adminBtn" class="bg-slate-800 hover:bg-slate-900 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg flex items-center gap-2 border border-slate-700">
+          <span id="adminIcon">🔒</span> <span id="adminText">Login: Section Head</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🌴 شريط إجازات النهارده -->
+  <div class="bg-gradient-to-l from-indigo-700 to-blue-600 text-white rounded-2xl shadow-lg p-4 mb-6 no-print">
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+      <div class="font-extrabold flex items-center gap-2 shrink-0">🌴 في إجازة النهارده <span id="todayCount" class="bg-white/20 px-2.5 py-0.5 rounded-full text-sm">0</span></div>
+      <div id="todayChips" class="flex flex-wrap gap-2"></div>
+    </div>
+  </div>
+
+  <!-- الإحصائيات -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex items-center justify-between border-r-4 border-r-blue-500">
+      <div><p class="text-xs sm:text-sm font-bold text-slate-500 mb-1">إجمالي الإجازات</p><h3 id="statTotal" class="text-2xl sm:text-3xl font-extrabold text-blue-600">0</h3></div><div class="text-3xl opacity-30">📁</div>
+    </div>
+    <div onclick="openFilteredModal('executed')" class="cursor-pointer hover:-translate-y-1 hover:shadow-md transition-all bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex items-center justify-between border-r-4 border-r-emerald-500">
+      <div><p class="text-xs sm:text-sm font-bold text-slate-500 mb-1">تم تنفيذها</p><h3 id="statExecuted" class="text-2xl sm:text-3xl font-extrabold text-emerald-600">0</h3></div><div class="text-3xl opacity-30">✅</div>
+    </div>
+    <div onclick="openFilteredModal('frozen')" class="cursor-pointer hover:-translate-y-1 hover:shadow-md transition-all bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex items-center justify-between border-r-4 border-r-amber-500">
+      <div><p class="text-xs sm:text-sm font-bold text-slate-500 mb-1">قيد الانتظار (Frozen)</p><h3 id="statFrozen" class="text-2xl sm:text-3xl font-extrabold text-amber-500">0</h3></div><div class="text-3xl opacity-30">⏳</div>
+    </div>
+    <div onclick="openFilteredModal('deduction')" class="cursor-pointer hover:-translate-y-1 hover:shadow-md transition-all bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex items-center justify-between border-r-4 border-r-rose-500">
+      <div><p class="text-xs sm:text-sm font-bold text-slate-500 mb-1">إجازات بالخصم</p><h3 id="statDeduction" class="text-2xl sm:text-3xl font-extrabold text-rose-600">0</h3></div><div class="text-3xl opacity-30">💸</div>
+    </div>
+  </div>
+
+  <!-- لوحة رئيس القسم -->
+  <div id="adminSettingsPanel" class="hidden bg-slate-900 text-white p-6 rounded-2xl shadow-2xl mb-6 border border-slate-700 relative overflow-hidden no-print">
+    <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-600 rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 relative z-10 gap-4">
+      <h2 class="text-2xl font-black flex items-center gap-2 text-indigo-200"><span>🛡️</span> Control Panel - Section Head</h2>
+      <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg border border-emerald-500">📥 استخراج شيت إكسيل منسق</button>
+    </div>
+    <div class="bg-slate-800/80 p-6 rounded-xl border border-slate-700 relative z-10">
+      <h3 class="text-base font-bold mb-5 flex items-center gap-2 border-b border-slate-700 pb-3"><span>🔐</span> Change Passwords (تغيير كلمات المرور)</h3>
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-5 items-end">
+        <div><label class="block text-xs font-bold text-indigo-300 mb-2">Select Account</label>
+          <select id="adminSupSelect" class="w-full !bg-slate-900 border-2 border-slate-700 rounded-xl p-3 text-white font-bold"></select></div>
+        <div><label class="block text-xs font-bold text-slate-400 mb-2">New Password</label>
+          <input type="password" id="adminNewPass" class="w-full !bg-slate-900 border-2 border-slate-700 rounded-xl p-3 text-center text-white tracking-[0.4em] font-bold outline-none focus:border-indigo-500" placeholder="كلمة المرور الجديدة"></div>
+        <div><label class="block text-xs font-bold text-slate-400 mb-2">Confirm Password</label>
+          <input type="password" id="adminConfirmPass" class="w-full !bg-slate-900 border-2 border-slate-700 rounded-xl p-3 text-center text-white tracking-[0.4em] font-bold outline-none focus:border-indigo-500" placeholder="تأكيد كلمة المرور"></div>
+        <button onclick="changePassword()" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg">Update Password 🔄</button>
+      </div>
+      <p class="text-xs text-amber-400/80 font-bold mt-4">⚠️ بصفتك Section Head، يمكنك تغيير أي كلمة مرور بدون إدخال القديمة.</p>
+    </div>
+  </div>
+
+  <!-- النموذج -->
+  <div class="bg-white p-5 sm:p-7 rounded-2xl shadow-sm mb-6 border border-slate-200 relative overflow-hidden no-print">
+    <div class="absolute top-0 right-0 w-2 h-full bg-gradient-to-b from-indigo-600 to-blue-500"></div>
+    <h2 id="formTitle" class="text-lg font-bold text-slate-700 mb-5 border-b border-slate-200 pb-3">📝 تسجيل طلب إجازة جديد</h2>
+    <form id="vacationForm" class="space-y-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">اسم الموظف <span class="text-red-500">*</span></label>
+          <input type="text" id="employeeName" required class="w-full border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none font-bold" placeholder="الاسم ثلاثي"></div>
+        <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Supervisor <span class="text-red-500">*</span></label>
+          <select id="supervisorName" class="w-full border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50 font-bold text-indigo-700"></select></div>
+        <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">نوع الإجازة <span class="text-red-500">*</span></label>
+          <select id="vacationType" class="w-full border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none font-bold">
+            <option value="سنوي">سنوي</option><option value="عارضة">عارضة</option><option value="بدل">بدل</option><option value="بالخصم">بالخصم</option></select></div>
+        <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">عدد الأيام <span class="text-red-500">*</span></label>
+          <select id="vacationDays" onchange="generateDateInputs()" class="w-full border border-indigo-300 rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none bg-indigo-50 font-bold text-center text-indigo-700">
+            <option value="1">1 يوم</option><option value="2">2 يوم</option><option value="3">3 أيام</option><option value="4">4 أيام</option><option value="5">5 أيام</option></select></div>
+      </div>
+      <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+        <h3 class="text-sm font-bold text-slate-600 mb-3">📅 تواريخ الإجازة المطلوبة:</h3>
+        <div id="datesContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3"></div>
+      </div>
+      <div class="flex justify-end gap-3 pt-2">
+        <button type="button" id="cancelBtn" onclick="resetForm()" class="hidden bg-slate-500 hover:bg-slate-600 text-white px-5 py-2.5 rounded-xl font-bold shadow">إلغاء التعديل</button>
+        <button type="submit" id="submitBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-2.5 rounded-xl font-bold shadow-lg flex items-center gap-2"><span>حفظ الطلب 💾</span></button>
+      </div>
+    </form>
+  </div>
+
+  <!-- الجدول -->
+  <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-300 print-table">
+    <div class="bg-slate-100 p-4 border-b border-slate-300 flex flex-col lg:flex-row justify-between items-center gap-4 no-print">
+      <h2 class="font-extrabold text-slate-700 text-lg">جدول إجازات الـ QC</h2>
+      <div class="flex flex-col sm:flex-row w-full lg:w-auto gap-3 items-center">
+        <div class="flex items-center gap-2 w-full sm:w-auto bg-white border border-slate-300 rounded-lg px-3 py-1.5 shadow-sm">
+          <span class="text-sm font-bold text-slate-500">ترتيب:</span>
+          <select id="sortSelect" onchange="renderTable()" class="bg-transparent text-sm font-bold focus:outline-none cursor-pointer">
+            <option value="dateDesc">الأحدث إضافة</option><option value="vacationDate">تاريخ الإجازة (الأقرب)</option>
+            <option value="alphaAsc">الاسم (أ - ي)</option><option value="alphaDesc">الاسم (ي - أ)</option>
+            <option value="type">نوع الإجازة</option><option value="executedFirst">تم تنفيذها</option><option value="frozenFirst">قيد الانتظار (Frozen)</option>
+          </select>
+        </div>
+        <input type="text" id="searchInput" onkeyup="filterTableSearch()" placeholder="🔍 ابحث بالاسم أو المشرف..." class="w-full sm:w-64 border border-slate-300 rounded-lg py-2 px-4 text-sm focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm">
+      </div>
+    </div>
+    <div class="overflow-x-auto max-h-[600px] relative">
+      <table class="w-full text-right border-collapse" id="vacationsTable">
+        <thead class="bg-slate-800 text-white text-sm sticky top-0 z-30"><tr>
+          <th class="p-4 border border-slate-700 text-center w-12 sticky right-0 bg-slate-800 z-40">م</th>
+          <th class="p-4 border border-slate-700 sticky right-12 bg-slate-800 z-40 min-w-[160px]">اسم الموظف</th>
+          <th class="p-4 border border-slate-700 text-center w-24">النوع</th><th class="p-4 border border-slate-700 text-center w-24">الأيام</th>
+          <th class="p-0 border border-slate-700 text-center w-40">التاريخ</th><th class="p-4 border border-slate-700 text-center w-32">Supervisor</th>
+          <th class="p-4 border border-slate-700 text-center w-32">حالة الطلب</th><th class="p-4 border border-slate-700 text-center w-32 no-print">إجراءات</th>
+        </tr></thead>
+        <tbody id="vacationTableBody" class="text-slate-700 text-sm font-medium"></tbody>
+      </table>
+    </div>
+  </div>
+  <p class="text-center text-xs text-slate-500 font-bold mt-6 mb-2 no-print">QC Department · Marbella Macaronella</p>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDVdEQBp3X0kIZgpMQIKOOHuCBbGe23A",
+  authDomain: "my-vacation-app-fedab.firebaseapp.com",
+  projectId: "my-vacation-app-fedab",
+  storageBucket: "my-vacation-app-fedab.firebasestorage.app",
+  messagingSenderId: "300432655208",
+  appId: "1:300432655208:web:c8e6128d15691c8da40cdd",
+  measurementId: "G-B8NZSBCQ7S"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const supervisorsList = ["Mohamed Samir","Ahmed Fadl","Mahmoud Ramadan","Mahmoud Abbas"];
+const COLLECTION_NAME = "vacations_qc", SETTINGS_DOC = "settings_qc";
+const MAX_OVERLAP = 2; // تحذير لو عدد الغايبين في نفس اليوم هيعدي الرقم ده
+let supervisorPasswords = {}, isAdmin = false, editingId = null, globalRequestsData = [];
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const getDates = r => (r.dates && r.dates.length) ? r.dates : [r.date || ''];
+const todayISO = () => { const t = new Date(); return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0'); };
+const dayName = d => { try { return new Date(d+'T00:00:00').toLocaleDateString('ar-EG',{weekday:'short'}); } catch(e){ return ''; } };
+
+/* 🌙 الوضع الليلي */
+function applyTheme(dark){ document.body.classList.toggle('dark', dark); $('themeBtn').innerText = dark ? '☀️ نهاري' : '🌙 ليلي'; }
+function toggleTheme(){ const d = !document.body.classList.contains('dark'); applyTheme(d); try{ localStorage.setItem('qc_theme', d?'dark':'light'); }catch(e){} }
+(function(){ let d=false; try{ d = localStorage.getItem('qc_theme')==='dark'; }catch(e){} applyTheme(d); })();
+
+/* 🕒 تاريخ وساعة */
+function tickClock(){ const n=new Date(); $('liveClock').innerText = n.toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'  •  '+n.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}); }
+tickClock(); setInterval(tickClock, 30000);
+
+/* 🌴 شريط إجازات النهارده */
+function updateTodayStrip(){
+  const iso = todayISO(), off = globalRequestsData.filter(r => getDates(r).includes(iso));
+  $('todayCount').innerText = off.length;
+  $('todayChips').innerHTML = off.length
+    ? off.map(r => `<span class="bg-white/15 border border-white/25 px-3 py-1 rounded-full text-sm font-bold">${esc(r.employeeName)} · ${esc(r.vacationType)}${r.executed?'':' ⏳'}</span>`).join('')
+    : `<span class="text-white/80 text-sm font-bold">الكل موجود النهارده 💪</span>`;
+}
+
+/* Toast */
+function showToast(msg, type='success'){
+  const t=$('toastNotification'); $('toastMessage').innerText=msg;
+  $('toastIcon').innerText = type==='success'?'✅':(type==='warning'?'⚠️':'❌');
+  t.classList.remove('bg-slate-800','bg-red-600','bg-amber-500');
+  t.classList.add(type==='error'?'bg-red-600':(type==='warning'?'bg-amber-500':'bg-slate-800'));
+  t.classList.remove('translate-y-20','opacity-0');
+  setTimeout(()=>t.classList.add('translate-y-20','opacity-0'),3000);
+}
+
+/* Modal */
+let modalResolve=null; const modal=$('customModal'), modalBox=$('customModalBox');
+function showCustomModal({title,text,type='info',isPrompt=false,showCancel=false}){
+  return new Promise(resolve=>{
+    modalResolve=resolve; $('customModalTitle').innerText=title; $('customModalText').innerText=text;
+    const cfg={success:['✅','bg-emerald-600'],error:['❌','bg-red-600'],warning:['⚠️','bg-amber-500'],info:['🔒','bg-indigo-600']}[type]||['🔒','bg-indigo-600'];
+    $('customModalIcon').innerHTML=cfg[0];
+    $('customModalConfirmBtn').className=`px-5 py-2.5 ${cfg[1]} text-white font-bold rounded-xl flex-1`;
+    $('customModalInputArea').classList.toggle('hidden',!isPrompt);
+    if(isPrompt){ $('customModalInput').value=''; setTimeout(()=>$('customModalInput').focus(),300); }
+    $('customModalCancelBtn').classList.toggle('hidden',!showCancel);
+    modal.classList.remove('opacity-0','pointer-events-none'); modalBox.classList.replace('scale-95','scale-100');
+  });
+}
+function closeCustomModal(){ modal.classList.add('opacity-0','pointer-events-none'); modalBox.classList.replace('scale-100','scale-95'); }
+$('customModalConfirmBtn').onclick=()=>{ closeCustomModal(); modalResolve($('customModalInputArea').classList.contains('hidden') ? true : $('customModalInput').value); };
+$('customModalCancelBtn').onclick=()=>{ closeCustomModal(); modalResolve(false); };
+
+/* نافذة الفلترة */
+const filterModal=$('filteredTableModal'), filterBox=$('filteredTableBox');
+function openFilteredModal(type){
+  let list=[],title='',icon='';
+  if(type==='executed'){ list=globalRequestsData.filter(r=>r.executed===true); title='الطلبات المنفذة'; icon='✅'; }
+  else if(type==='frozen'){ list=globalRequestsData.filter(r=>!r.executed); title='طلبات قيد الانتظار (Frozen)'; icon='⏳'; }
+  else { list=globalRequestsData.filter(r=>r.vacationType==='بالخصم'); title='إجازات بالخصم'; icon='💸'; }
+  $('filteredModalTitle').innerText=title; $('filteredModalIcon').innerText=icon; $('filteredModalCount').innerText=list.length;
+  $('filteredTableBody').innerHTML = list.length ? list.map((d,i)=>{
+    const ds=getDates(d);
+    return `<tr class="border-b border-slate-200"><td class="p-3 border border-slate-200 text-center font-bold">${i+1}</td>
+      <td class="p-3 border border-slate-200 font-bold">${esc(d.employeeName)}</td><td class="p-3 border border-slate-200 text-center">${esc(d.vacationType)}</td>
+      <td class="p-3 border border-slate-200 text-center font-bold text-indigo-600">${esc(d.numberOfDays||ds.length)}</td>
+      <td class="p-0 border border-slate-200 text-center">${ds.map(x=>`<div class="p-2 font-bold">${esc(x)}</div>`).join('')}</td>
+      <td class="p-3 border border-slate-200 text-center font-bold">${esc(d.supervisor)}</td></tr>`;
+  }).join('') : `<tr><td colspan="6" class="p-8 text-center text-slate-500 font-bold">لا توجد بيانات مطابقة.</td></tr>`;
+  filterModal.classList.remove('opacity-0','pointer-events-none'); filterBox.classList.replace('scale-95','scale-100');
+}
+function closeFilteredModal(){ filterModal.classList.add('opacity-0','pointer-events-none'); filterBox.classList.replace('scale-100','scale-95'); }
+filterModal.addEventListener('click',e=>{ if(e.target===filterModal) closeFilteredModal(); });
+
+function populateSupervisors(){
+  $('supervisorName').innerHTML = supervisorsList.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('');
+  $('adminSupSelect').innerHTML = `<option value="Section_Head">👑 Section Head (Mahmoud)</option>` + supervisorsList.map(s=>`<option value="${esc(s)}">👤 ${esc(s)}</option>`).join('');
+}
+
+async function initPasswords(){
+  try{
+    const snap = await db.collection(SETTINGS_DOC).doc("passwords").get();
+    if(snap.exists){
+      supervisorPasswords = snap.data();
+      if(!supervisorPasswords["Section_Head"]){ supervisorPasswords["Section_Head"]="2030"; await db.collection(SETTINGS_DOC).doc("passwords").set(supervisorPasswords); }
+    } else {
+      supervisorPasswords = {"Section_Head":"2030"}; supervisorsList.forEach(s=>supervisorPasswords[s]="1234");
+      await db.collection(SETTINGS_DOC).doc("passwords").set(supervisorPasswords);
+    }
+  }catch(e){ console.error("Firebase Auth Init Error:", e); }
+}
+
+function generateDateInputs(prefill=[]){
+  const n=parseInt($('vacationDays').value), c=$('datesContainer'); c.innerHTML='';
+  for(let i=0;i<n;i++) c.innerHTML += `<div><label class="block text-xs font-bold text-slate-500 mb-1">اليوم (${i+1})</label>
+    <input type="date" value="${esc(prefill[i]||'')}" class="vacation-date-input w-full border border-slate-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none font-bold" required></div>`;
+}
+
+async function toggleAdmin(){
+  const profile=$('stickyProfile');
+  if(!isAdmin){
+    const pass = await showCustomModal({title:'دخول رئيس القسم',text:'برجاء إدخال الرقم السري (Section Head)',isPrompt:true,showCancel:true});
+    if(pass && pass===supervisorPasswords["Section_Head"]){
+      isAdmin=true; $('adminIcon').innerText="🔓"; $('adminText').innerText="Logout (الخروج)";
+      $('adminBtn').className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg flex items-center gap-2 border border-red-700";
+      $('adminSettingsPanel').classList.remove('hidden');
+      profile.classList.remove('hidden'); setTimeout(()=>{ profile.classList.remove('profile-exit'); profile.classList.add('profile-enter'); },50);
+      renderTable(); showToast('تم تفعيل صلاحيات رئيس القسم بنجاح');
+    } else if(pass) showToast('كلمة المرور غير صحيحة','error');
+  } else {
+    isAdmin=false; $('adminIcon').innerText="🔒"; $('adminText').innerText="Login: Section Head";
+    $('adminBtn').className="bg-slate-800 hover:bg-slate-900 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg flex items-center gap-2 border border-slate-700";
+    $('adminSettingsPanel').classList.add('hidden');
+    profile.classList.replace('profile-enter','profile-exit'); setTimeout(()=>profile.classList.add('hidden'),700);
+    renderTable();
+  }
+}
+
+async function changePassword(){
+  const sup=$('adminSupSelect').value, np=$('adminNewPass').value, cp=$('adminConfirmPass').value;
+  if(!np||!cp) return showToast('يرجى إدخال الباسورد الجديد وتأكيده','warning');
+  if(np!==cp) return showToast('الباسورد الجديد وتأكيده غير متطابقين!','error');
+  try{
+    supervisorPasswords[sup]=np; await db.collection(SETTINGS_DOC).doc("passwords").set(supervisorPasswords);
+    $('adminNewPass').value=''; $('adminConfirmPass').value='';
+    await showCustomModal({title:'نجاح',text:`تم تحديث باسورد حساب ${sup==="Section_Head"?"رئيس القسم":`المشرف (${sup})`} بنجاح.`,type:'success'});
+  }catch(e){ showToast('حدث خطأ أثناء الاتصال بقاعدة البيانات','error'); }
+}
+
+async function verifySupervisorAuth(name){
+  if(isAdmin) return true;
+  const pass = await showCustomModal({title:'تأكيد الهوية',text:`أدخل الرقم السري الخاص بـ (${name})`,isPrompt:true,showCancel:true});
+  if(pass && pass===supervisorPasswords[name]) return true;
+  if(pass) await showCustomModal({title:'مرفوض',text:'الرقم السري غير صحيح!',type:'error'});
+  return false;
+}
+
+async function fetchRequestsData(){
+  $('vacationTableBody').innerHTML=`<tr><td colspan="8" class="p-8 text-center font-bold text-indigo-600 animate-pulse">⏳ جاري مزامنة بيانات قسم الجودة...</td></tr>`;
+  try{
+    const qs = await db.collection(COLLECTION_NAME).get();
+    globalRequestsData = []; qs.forEach(d=>globalRequestsData.push({id:d.id,...d.data()}));
+    renderTable();
+  }catch(e){ $('vacationTableBody').innerHTML=`<tr><td colspan="8" class="p-8 text-center text-red-500 font-bold">حدث خطأ أثناء تحميل البيانات!</td></tr>`; }
+}
+
+function renderTable(){
+  const body=$('vacationTableBody'); let reqs=[...globalRequestsData];
+  const ex=reqs.filter(r=>r.executed).length;
+  $('statTotal').innerText=reqs.length; $('statExecuted').innerText=ex; $('statFrozen').innerText=reqs.length-ex;
+  $('statDeduction').innerText=reqs.filter(r=>r.vacationType==='بالخصم').length;
+  updateTodayStrip();
+  if(!reqs.length){ body.innerHTML=`<tr><td colspan="8" class="p-8 text-center text-slate-500 font-bold">لا توجد طلبات إجازة مسجلة حالياً.</td></tr>`; return; }
+
+  const m=$('sortSelect').value, first=r=>getDates(r)[0]||'9999-12-31';
+  if(m==='dateDesc') reqs.sort((a,b)=>((b.timestamp&&b.timestamp.seconds)||0)-((a.timestamp&&a.timestamp.seconds)||0));
+  else if(m==='vacationDate') reqs.sort((a,b)=>first(a).localeCompare(first(b)));
+  else if(m==='alphaAsc') reqs.sort((a,b)=>a.employeeName.localeCompare(b.employeeName,'ar'));
+  else if(m==='alphaDesc') reqs.sort((a,b)=>b.employeeName.localeCompare(a.employeeName,'ar'));
+  else if(m==='type') reqs.sort((a,b)=>a.vacationType.localeCompare(b.vacationType,'ar'));
+  else if(m==='executedFirst') reqs.sort((a,b)=>(b.executed?1:0)-(a.executed?1:0));
+  else if(m==='frozenFirst') reqs.sort((a,b)=>(a.executed?1:0)-(b.executed?1:0));
+
+  const iso=todayISO();
+  body.innerHTML = reqs.map((d,i)=>{
+    const ds=getDates(d), fz=d.executed?'':' fz';
+    const badge = d.executed
+      ? `<span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold border border-emerald-200">✅ منفذ</span>`
+      : `<span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold border border-amber-200 animate-pulse">⏳ Frozen</span>`;
+    const datesHtml = ds.map(x=>`<div class="p-2 border-b border-slate-200 font-bold text-slate-600"><span class="${x===iso?'today-chip':''}">${esc(x)}</span> <span class="text-xs text-slate-400">${dayName(x)}</span></div>`).join('');
+    const toggle = `<label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" class="sr-only peer" ${d.executed?'checked':''} ${isAdmin?'':'disabled'} onchange="updateExecution('${d.id}',this.checked)">
+      <div class="w-11 h-6 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 shadow-inner ${isAdmin?'':'opacity-50'}"></div></label>`;
+    return `<tr class="${d.executed?'':'row-fz'} border-b border-slate-200">
+      <td class="p-4 border border-slate-200 font-extrabold text-center text-slate-500 sticky right-0 z-20 sticky-cell${fz}">${i+1}</td>
+      <td class="p-4 border border-slate-200 ${d.executed?'':'text-amber-600 font-extrabold'} text-base employee-cell sticky right-12 z-20 sticky-cell${fz} min-w-[160px]">${esc(d.employeeName)}</td>
+      <td class="p-4 border border-slate-200 text-center font-bold">${esc(d.vacationType)}</td>
+      <td class="p-4 border border-slate-200 text-center font-extrabold text-indigo-600">${esc(d.numberOfDays||ds.length)}</td>
+      <td class="p-0 border border-slate-200 text-center align-top">${datesHtml}</td>
+      <td class="p-4 border border-slate-200 text-center font-bold supervisor-cell">${esc(d.supervisor)}</td>
+      <td class="p-4 border border-slate-200 text-center"><div class="flex flex-col items-center gap-2">${badge}<div class="no-print mt-1">${toggle}</div></div></td>
+      <td class="p-4 border border-slate-200 text-center no-print"><div class="flex flex-col gap-2">
+        <button onclick="requestEdit('${d.id}')" class="bg-amber-100 hover:bg-amber-200 text-amber-700 border border-amber-300 px-3 py-1.5 rounded-lg text-xs font-bold">تعديل</button>
+        <button onclick="requestDelete('${d.id}')" class="bg-red-100 hover:bg-red-200 text-red-700 border border-red-300 px-3 py-1.5 rounded-lg text-xs font-bold">حذف</button>
+        <button onclick="shareWhatsApp('${d.id}')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 border border-emerald-300 px-3 py-1.5 rounded-lg text-xs font-bold">واتساب 💬</button>
+      </div></td></tr>`;
+  }).join('');
+  filterTableSearch();
+}
+
+/* 💬 مشاركة واتساب */
+function shareWhatsApp(id){
+  const r=globalRequestsData.find(x=>x.id===id); if(!r) return;
+  const txt=`📋 طلب إجازة - QC\n👤 ${r.employeeName}\n📌 النوع: ${r.vacationType}\n📅 ${getDates(r).join(' ، ')}\n👨‍💼 المشرف: ${r.supervisor}\n${r.executed?'✅ منفذ':'⏳ Frozen'}`;
+  window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
+}
+
+/* 📥 إكسيل منسق (ألوان + RTL + ملخص) */
+function exportToExcel(){
+  if(!globalRequestsData.length) return showToast("لا توجد بيانات لاستخراجها","warning");
+  const th='style="background:#1e1b4b;color:#fff;font-weight:bold;text-align:center;border:1px solid #000;height:28px"';
+  const tc={'سنوي':'#dbeafe','عارضة':'#fef3c7','بدل':'#dcfce7','بالخصم':'#fee2e2'};
+  const rows=globalRequestsData.map((r,i)=>{
+    const bg=r.executed?'#ecfdf5':'#fffbeb', c=`style="border:1px solid #94a3b8;text-align:center;background:${bg}"`;
+    return `<tr><td ${c}>${i+1}</td><td style="border:1px solid #94a3b8;background:${bg};font-weight:bold">${esc(r.employeeName)}</td>
+      <td style="border:1px solid #94a3b8;text-align:center;background:${tc[r.vacationType]||bg}">${esc(r.vacationType)}</td>
+      <td ${c}>${esc(r.numberOfDays||getDates(r).length)}</td><td ${c}>${esc(getDates(r).join(' | '))}</td><td ${c}>${esc(r.supervisor)}</td>
+      <td style="border:1px solid #94a3b8;text-align:center;font-weight:bold;background:${bg};color:${r.executed?'#047857':'#b45309'}">${r.executed?'منفذ':'Frozen'}</td></tr>`;
+  }).join('');
+  const ex=globalRequestsData.filter(r=>r.executed).length, tot=globalRequestsData.length;
+  const days=globalRequestsData.reduce((s,r)=>s+(parseInt(r.numberOfDays)||getDates(r).length),0);
+  const html=`<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8">
+  <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>إجازات QC</x:Name><x:WorksheetOptions><x:DisplayRightToLeft/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]></head>
+  <body><table dir="rtl" style="font-family:Tajawal,Arial;font-size:12pt;border-collapse:collapse">
+  <tr><td colspan="7" style="background:#4f46e5;color:#fff;font-size:16pt;font-weight:bold;text-align:center;height:36px">تقرير إجازات قسم الجودة (QC) - ${new Date().toLocaleDateString('ar-EG')}</td></tr>
+  <tr><td colspan="7" style="background:#eef2ff;text-align:center;font-weight:bold">الإجمالي: ${tot} طلب | منفذ: ${ex} | Frozen: ${tot-ex} | إجمالي الأيام: ${days}</td></tr>
+  <tr><th ${th} width="50">م</th><th ${th} width="200">اسم الموظف</th><th ${th} width="90">النوع</th><th ${th} width="70">الأيام</th><th ${th} width="260">التواريخ</th><th ${th} width="150">المشرف</th><th ${th} width="90">الحالة</th></tr>
+  ${rows}</table></body></html>`;
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\uFEFF'+html],{type:'application/vnd.ms-excel;charset=utf-8'}));
+  a.download='إجازات_الجودة_QC_'+todayISO()+'.xls'; a.click(); showToast('تم استخراج التقرير بنجاح');
+}
+
+function filterTableSearch(){
+  const q=$('searchInput').value.toUpperCase();
+  document.querySelectorAll('#vacationTableBody tr').forEach(tr=>{
+    const e=tr.querySelector('.employee-cell'), s=tr.querySelector('.supervisor-cell');
+    if(e&&s) tr.style.display = (e.textContent+' '+s.textContent).toUpperCase().includes(q) ? '' : 'none';
+  });
+}
+
+/* حفظ الطلب + 🚦 تحذير التزاحم */
+$('vacationForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const employeeName=$('employeeName').value.trim(), vacationType=$('vacationType').value, supervisor=$('supervisorName').value, numberOfDays=$('vacationDays').value;
+  const datesArray=Array.from(document.querySelectorAll('.vacation-date-input')).map(i=>i.value);
+  if(datesArray.some(d=>!d)) return showToast('يرجى إدخال جميع تواريخ الإجازة','warning');
+  if(new Set(datesArray).size!==datesArray.length) return showToast('فيه تاريخ متكرر!','warning');
+
+  if(!editingId){ if(!(await verifySupervisorAuth(supervisor))) return; }
+
+  const crowded=datesArray.filter(d=>globalRequestsData.filter(r=>r.id!==editingId && getDates(r).includes(d)).length>=MAX_OVERLAP);
+  if(crowded.length){
+    const ok=await showCustomModal({title:'تنبيه تزاحم',text:`في ${crowded.join(' ، ')} فيه ${MAX_OVERLAP} موظفين أو أكتر في إجازة بالفعل. تكمل الحفظ؟`,type:'warning',showCancel:true});
+    if(!ok) return;
+  }
+  try{
+    if(editingId){ await db.collection(COLLECTION_NAME).doc(editingId).update({employeeName,vacationType,numberOfDays,dates:datesArray,supervisor}); showToast('تم تعديل بيانات الطلب بنجاح'); }
+    else { await db.collection(COLLECTION_NAME).add({employeeName,vacationType,numberOfDays,dates:datesArray,supervisor,executed:false,timestamp:new Date()}); showToast('تم تسجيل الطلب في النظام'); }
+    resetForm(); fetchRequestsData();
+  }catch(err){ showToast('حدث خطأ أثناء الحفظ','error'); }
+});
+
+async function requestEdit(id){
+  const r=globalRequestsData.find(x=>x.id===id); if(!r) return;
+  if(!(await verifySupervisorAuth(r.supervisor))) return;
+  editingId=id; $('employeeName').value=r.employeeName; $('vacationType').value=r.vacationType; $('supervisorName').value=r.supervisor;
+  $('vacationDays').value=r.numberOfDays||getDates(r).length; generateDateInputs(getDates(r));
+  $('formTitle').innerHTML="✏️ تعديل طلب إجازة (القسم: QC)";
+  $('submitBtn').innerHTML="<span>حفظ التعديلات 💾</span>"; $('submitBtn').className="bg-amber-500 hover:bg-amber-600 text-white px-8 py-2.5 rounded-xl font-bold shadow-lg flex items-center gap-2";
+  $('cancelBtn').classList.remove('hidden'); window.scrollTo({top:0,behavior:'smooth'});
+}
+
+async function requestDelete(id){
+  const r=globalRequestsData.find(x=>x.id===id); if(!r) return;
+  if(!(await verifySupervisorAuth(r.supervisor))) return;
+  if(await showCustomModal({title:'تأكيد الحذف',text:'هل أنت متأكد من مسح هذا الطلب نهائياً؟',type:'warning',showCancel:true})){
+    try{ await db.collection(COLLECTION_NAME).doc(id).delete(); showToast('تم حذف الطلب نهائياً'); fetchRequestsData(); }catch(e){ showToast('تعذر الحذف','error'); }
+  }
+}
+
+function resetForm(){
+  editingId=null; $('vacationForm').reset(); $('vacationDays').value="1"; generateDateInputs();
+  $('formTitle').innerHTML="📝 تسجيل طلب إجازة جديد"; $('submitBtn').innerHTML="<span>حفظ الطلب 💾</span>";
+  $('submitBtn').className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-2.5 rounded-xl font-bold shadow-lg flex items-center gap-2";
+  $('cancelBtn').classList.add('hidden');
+}
+
+async function updateExecution(id,status){
+  if(!isAdmin) return;
+  try{
+    await db.collection(COLLECTION_NAME).doc(id).update({executed:status});
+    showToast(status?'تم تنفيذ الطلب':'تم تحويل الطلب إلى Frozen');
+    const r=globalRequestsData.find(x=>x.id===id); if(r) r.executed=status; renderTable();
+  }catch(e){ showToast('تعذر التحديث','error'); }
+}
+
+(async function startApp(){ populateSupervisors(); generateDateInputs(); await initPasswords(); fetchRequestsData(); })();
+</script>
+</body>
+</html>
