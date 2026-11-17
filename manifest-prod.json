@@ -1,7 +1,7 @@
 {
-  "name": "نظام إدارة الإجازات - Production",
-  "short_name": "إجازات الإنتاج",
-  "description": "Marbella Macaronella - Production Vacation Management",
+  "name": "Marbella Group P.S.",
+  "short_name": "Marbella P.S.",
+  "description": "Marbella Macaronella — Production Smart System",
   "id": "./index.html",
   "start_url": "./index.html",
   "scope": "./",
@@ -11,9 +11,22 @@
   "background_color": "#0b1220",
   "theme_color": "#4f46e5",
   "orientation": "any",
-  "categories": ["business", "productivity"],
+  "categories": [
+    "business",
+    "productivity"
+  ],
   "icons": [
-    { "src": "logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
   ]
 }
